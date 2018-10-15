@@ -29,6 +29,8 @@ def encode_text(lines):
     #Cria o encoder
     encoder = text_encoders.StaticTokenizerEncoder(lines, tokenize=lambda s: s.split())
 
+    vocab_size = encoder.vocab_size
+
     #Cria iterator para o encoder
     gen = (i for i in lines)
     encoded.append(encoder.encode(gen.__next__()))
@@ -36,9 +38,11 @@ def encode_text(lines):
     #Faz o padding de cada linha nos dialogos para um tamanho maximo de 90
     padded = [pad_tensor(encoded[cvs], length=90) for cvs in range(len(encoded))]
 
+    return padded, vocab_size
+
 def prepare_dataset(path):
     lines, labels = load_dataset(path)
 
-    padded = encode_text(lines)
+    padded, vocab_size = encode_text(lines)
 
-    return padded, labels
+    return padded, labels, vocab_size
