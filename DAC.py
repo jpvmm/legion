@@ -25,6 +25,10 @@ class DAC(nn.Module):
         self.gru.flatten_parameters()
         output, hidden = self.gru(gru_input, hidden)
 
+        fc_output = self.fc(hidden[-1])
+
+        return fc_output
+
     def _init_hidden(self, batch_size):
         hidden = torch.zeros(self.n_layers * 2,
                              batch_size, self.hidden_size)
