@@ -1,6 +1,11 @@
 import pandas as pd
 from torchnlp import text_encoders
 from torchnlp.utils import pad_tensor
+import torch
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+import numpy as np
+
+LABELS = ['cma','cmq', 'cms', 'csa', 'csq',	'css', 'ot']
 
 def load_dataset(path):
     df = pd.read_csv(path, dtype=str)
@@ -32,17 +37,40 @@ def encode_text(lines):
     vocab_size = encoder.vocab_size
 
     #Cria iterator para o encoder
-    gen = (i for i in lines)
-    encoded.append(encoder.encode(gen.__next__()))
+    encoded = [encoder.encode(linha) for linha in lines]
 
     #Faz o padding de cada linha nos dialogos para um tamanho maximo de 90
     padded = [pad_tensor(encoded[cvs], length=90) for cvs in range(len(encoded))]
 
-    return padded, vocab_size
+    return torch.stack(padded), vocab_size
 
-def prepare_dataset(path):
+def hot_encoder(labels):
+#     le = LabelEncoder()
+
+#     inte = le.fit_transform(labels)
+    
+#     inte = inte.reshape(len(labels),1)
+    
+    enc = OneHotEncoder(categories='auto')
+    hot = enc.fit_transform(np.array(labels).reshape(len(labels),1))
+    
+    return hot    
+
+def hot_decoder(pred):
+       
+    le = LabelEncoder()
+    inte = le.fit_transform(LABELS)
+    
+    inteiro = np.argmax(pred)
+    
+    return le.inverse_transform([inteiro])    
+
+
+def prepare_dataset(path, pred = False):
     lines, labels = load_dataset(path)
 
     padded, vocab_size = encode_text(lines)
-
-    return padded, labels, vocab_size
+    
+    labels = hot_encoder(labels)
+    
+    return padded, labels.toarray(), vocab_size
