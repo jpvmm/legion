@@ -38,11 +38,13 @@ def encode_text(lines):
 
     #Cria iterator para o encoder
     encoded = [encoder.encode(linha) for linha in lines]
+    
+    x_lengths = [len(sentence) for sentence in encoded]
 
     #Faz o padding de cada linha nos dialogos para um tamanho maximo de 90
     padded = [pad_tensor(encoded[cvs], length=90) for cvs in range(len(encoded))]
 
-    return torch.stack(padded), vocab_size
+    return torch.stack(padded), vocab_size, x_lengths
 
 def hot_encoder(labels):
 #     le = LabelEncoder()
@@ -69,8 +71,8 @@ def hot_decoder(pred):
 def prepare_dataset(path, pred = False):
     lines, labels = load_dataset(path)
 
-    padded, vocab_size = encode_text(lines)
+    padded, vocab_size, x_lengths = encode_text(lines)
     
     labels = hot_encoder(labels)
     
-    return padded, labels.toarray(), vocab_size
+    return padded, labels.toarray(), vocab_size, x_lengths
