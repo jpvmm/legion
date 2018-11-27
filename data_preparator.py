@@ -47,16 +47,16 @@ def encode_text(lines):
     return torch.stack(padded), vocab_size, x_lengths
 
 def hot_encoder(labels):
-#     le = LabelEncoder()
+    le = LabelEncoder()
 
-#     inte = le.fit_transform(labels)
+    inte = le.fit_transform(labels)
     
-#     inte = inte.reshape(len(labels),1)
+    inte = inte.reshape(len(labels),1)
     
-    enc = OneHotEncoder(categories='auto')
-    hot = enc.fit_transform(np.array(labels).reshape(len(labels),1))
+    #enc = OneHotEncoder(categories='auto')
+    #hot = enc.fit_transform(np.array(labels).reshape(len(labels),1))
     
-    return hot    
+    return inte    
 
 def hot_decoder(pred):
        
@@ -75,4 +75,4 @@ def prepare_dataset(path, pred = False):
     
     labels = hot_encoder(labels)
     
-    return padded, labels.toarray(), vocab_size, x_lengths
+    return padded, labels, vocab_size, x_lengths
